@@ -1,0 +1,30 @@
+The modifications made to the software provided are as follows:
+
+* gson-fire (filename : modified line number)
+ClassConfig.java : 16~62
+CustomReadHookTest.java : 4~28
+GsonFireBuilder.java : 36~283
+HooksTypeAdapter.java : 16~ 102
+NullableTypeAdapter.java : 3~45
+PreRead.java 1~9
+TypeSelectorTypeAdapterFactory.java : 8~97
+
+
+* log4cxx (filename : modified line number)
+loggingevent.cpp : 127, 129
+socketoutputstream.cpp : 22
+stringhelper.cpp : 32
+xmllayout.cpp : 28, 104, 105, 109, 123
+
+* MathGeoLib (filename only, all files are modified for cpp to c lanugauge porting)
+Algorithm/GJK.h, GJK.cpp
+Geometry/AABB.h, AABB.cpp
+Geometry/Capsule.h, Capsule.cpp
+Geometry/LineSegment.h, LineSegment.cpp
+Geometry/OBB.h, OBB.cpp
+Geometry/PBVolume.h, PBVolume.cpp
+Geometry/Plane.h, Plane.cpp
+Geometry/Polygon.h, Polygon.cpp
+Geometry/Polyhedron.h, Polyhedron.cpp
+Geometry/Sphere.h, Sphere.cpp
+Geometry/Triangle.h, Triangle.cpp

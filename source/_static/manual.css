@@ -1,0 +1,46 @@
+/* top background color - narrow view */
+.wy-nav-top {
+    background: rgb(251, 251, 251) !important;
+    border-bottom: 1px solid #adadad;
+}
+
+/* top text color - narrow view */
+.wy-nav-top a, .wy-nav-top i {
+    color: black !important;
+}
+
+/* top left background color */
+.wy-side-nav-search {
+    background-color: rgb(251, 251, 251) !important;
+    border-right: 1px solid #adadad;
+}
+/* name/logo text color */
+.wy-side-nav-search a {
+    color: black !important;
+}
+
+/* search input field for background */
+.wy-side-nav-search input[type=text] {
+    border-color: #ccc;
+}
+
+/* custom style for rubric headings to make them larger */
+.rst-content .rubric {
+    font-size: 1.5em;
+    font-weight: 800;
+    margin-top: 1.8em;
+    margin-bottom: 1em;
+    padding-bottom: 0.3em;
+}
+
+/* Container for side-by-side images */
+.side-by-side {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    gap: 0.5em; /* Adds space between images */
+}
+
+/* Make direct children of the container equal-width columns */
+.side-by-side > * {
+    flex: 1; /* Each child will take up equal space */
+}
