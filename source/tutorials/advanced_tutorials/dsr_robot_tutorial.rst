@@ -78,6 +78,10 @@ The core functionalities for robot control, such as movement commands and positi
     from DSR_ROBOT2 import posj, posx
     from DSR_ROBOT2 import ROBOT_MODE_AUTONOMOUS
 
+.. note::
+
+    ``DSR_ROBOT2`` import should come after initializing the ROS 2 node (``DR_init.__dsr__node``).
+
 **4. Setting the Robot's Operational Mode and Speed**
 
 Before sending motion commands or settings, the robot must be set to the correct mode.
