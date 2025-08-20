@@ -9,3 +9,4 @@ Advanced Tutorials
 
    advanced_tutorials/dsr_robot_tutorial
    advanced_tutorials/moveit_advanced_tutorial
+   advanced_tutorials/moveit_gripper_advanced_tutorial
