@@ -60,5 +60,5 @@ Includes robot spawners, world files, and dynamic simulation components for test
 
 .. note::
 
-   Package names ending in `2` indicate compatibility with **ROS 2 Jazzy** and later.  
+   Package names ending in `2` indicate compatibility with **ROS 2 Humble** and later.  
    These are not compatible with ROS 1 or earlier ROS 2 distributions.

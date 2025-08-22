@@ -3,6 +3,7 @@
 DR_init Import Issue
 ====================
 
+If a dr_init error occurs even after a successful build, please refer to the following information.
 This document describes a common error related to the `DR_init` module in the Doosan ROS 2 environment, including the root cause and its resolution.
 
 1. Error Case

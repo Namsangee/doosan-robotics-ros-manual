@@ -12,7 +12,7 @@ Overview
 
 .. rubric:: Purpose
 
-This package provides control functionality for all Doosan robot models in the **ROS 2 Jazzy** environment.
+This package provides control functionality for all Doosan robot models in the **ROS 2 Humble** environment.
 
 .. rubric:: Features
 

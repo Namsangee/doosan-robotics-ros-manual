@@ -3,4 +3,4 @@
 Update Timeline
 ===============
 
-This page documents major updates, bug fixes, and structural changes made to the Jazzy version of the codebase.
+This page documents major updates, bug fixes, and structural changes made to the Humble version of the codebase.

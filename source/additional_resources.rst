@@ -8,7 +8,7 @@ Additional Resources
    :caption: reference resource or pages:
 
    python_api
-   p3020_detailed_guide
+   
 
 
 External Links
