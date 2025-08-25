@@ -34,6 +34,43 @@ The architecture is composed by the following layers:
 - **DRFL** (Doosan Robotics Framework Library): C++ API for communicating with the robot controller software.
 - **DRCF** (Doosan Robot Controller Framework): The low-level controller running on the robot or emulator.
 
+Quick Start
+--------------------------------------
+
+Below is a complete, minimal script to move the robot to a single position. You can save this as a Python file and run it directly after launching the simulation.
+
+.. code-block:: python
+
+    import rclpy
+    import DR_init
+    import sys
+
+    def main(args=None):
+        rclpy.init(args=args)
+
+        ROBOT_ID = "dsr01"
+        ROBOT_MODEL = "m1013"
+        DR_init.__dsr__id = ROBOT_ID
+        DR_init.__dsr__model = ROBOT_MODEL
+
+        node = rclpy.create_node('example_py', namespace=ROBOT_ID)
+
+        DR_init.__dsr__node = node
+
+        from DSR_ROBOT2 import movej, posj, set_robot_mode, ROBOT_MODE_AUTONOMOUS
+
+        set_robot_mode(ROBOT_MODE_AUTONOMOUS)
+
+        target_pos = posj(0, 0, 90.0, 0, 90.0, 0)
+
+        movej(target_pos, vel=100, acc=100)
+
+        print("Example complete")
+        rclpy.shutdown()
+
+    if __name__ == '__main__':
+        main()
+
 Setup and Launch
 ----------------
 
@@ -57,8 +94,8 @@ The ``DR_init`` module is used to store this configuration.
 
 **2. Setting up the ROS 2 Node**
 
-Communication in ROS 2 is handled through nodes. You must initialize the `rclpy` library and create a node. 
-This node is then assigned to the `DR_init` module, enabling the library to communicate over the ROS 2 network.
+Communication in ROS 2 is handled through nodes. You must initialize the `rclpy` library and create a node giving the namespace. 
+This node is then assigned to the ``DR_init`` module, enabling the library to communicate over the ROS 2 network.
 
 .. code-block:: python
 
@@ -67,6 +104,7 @@ This node is then assigned to the `DR_init` module, enabling the library to comm
     rclpy.init(args=args)
     node = rclpy.create_node('single_robot_simple_py', namespace=ROBOT_ID)
     DR_init.__dsr__node = node
+
 
 **3. Importing Robot Control Functions Needed**
 
@@ -78,7 +116,7 @@ The core functionalities for robot control, such as movement commands and positi
     from DSR_ROBOT2 import posj, posx
     from DSR_ROBOT2 import ROBOT_MODE_AUTONOMOUS
 
-.. note::
+.. caution::
 
     ``DSR_ROBOT2`` import should come after initializing the ROS 2 node (``DR_init.__dsr__node``).
 

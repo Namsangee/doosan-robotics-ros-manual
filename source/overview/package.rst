@@ -43,6 +43,11 @@ dsr_msgs2
 Defines Doosan-specific ROS 2 message and service types.  
 Enables fine-grained robot and tool control (e.g., `GetToolForce`, `SetDigitalOutput`).
 
+dsr_mujoco
+~~~~~~~~~~
+Enables MuJoCo simulation feature.  
+Includes MuJoCo launch and config files.
+
 dsr_tests
 ~~~~~~~~~
 Provides test nodes, launch tests, and regression checks.  

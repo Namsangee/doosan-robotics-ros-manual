@@ -8,3 +8,4 @@ Advanced Tutorials
    :caption: Advanced Tutorials:
 
    advanced_tutorials/dsr_robot_tutorial
+   advanced_tutorials/mujoco_ros2_tutorial
