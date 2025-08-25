@@ -57,10 +57,18 @@ jobs:
       - name: Create 404 page (redirect to humble)
         run: |
           cat > _site/404.html <<'EOF'
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=/doosan-robotics-ros-manual/Humble/">
+          <!doctype html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url=/doosan-robotics-ros-manual/humble/">
+          <link rel="canonical" href="/doosan-robotics-ros-manual/humble/">
           <title>Not Found · Redirecting…</title>
-          <p>Page not found. Go to <a href="/doosan-robotics-ros-manual/Humble/">Humble docs</a>.</p>
+          <p>Page not found. Go to <a href="/doosan-robotics-ros-manual/humble/">Humble docs</a>.</p>
+          <script>
+            (function() {
+              var target = "/doosan-robotics-ros-manual/humble/";
+              if (location.pathname !== target) location.replace(target);
+            })();
+          </script>
           EOF
 
       - name: Ensure .nojekyll

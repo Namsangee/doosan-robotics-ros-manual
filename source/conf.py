@@ -1,11 +1,11 @@
-
-
+# -- Project information -----------------------------------------------------
 project = 'Doosan Robotics ROS2 Manual'
-copyright = '2025, ms'
 author = 'ms'
+copyright = '2025, ms'
 version = '1.0'
 release = '1.0'
 
+# -- General configuration ---------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
@@ -24,11 +24,14 @@ rst_prolog = """
    <br />
 """
 
+# -- sphinx-multiversion -----------------------------------------------------
+smv_remote_whitelist = r'^origin$'
+smv_branch_whitelist = r'^(humble|jazzy)$'
+
+# -- HTML output -------------------------------------------------------------
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-
 html_css_files = ['manual.css']
-
 html_title = 'ROS2 Manual Guide v1.0'
 html_logo = '_static/doosan_logo.png'
 
@@ -36,8 +39,8 @@ html_sidebars = {
     "**": [
         "localtoc.html",
         "relations.html",
-        "searchbox.html", 
-        "versions.html",  
+        "searchbox.html",
+        "versions.html",
     ],
 }
 
@@ -46,8 +49,4 @@ html_theme_options = {
     'sticky_navigation': True,
     'navigation_depth': 4,
     'titles_only': False,
-}
-
-html_context = {
-    'display_lower_left': True,
 }
