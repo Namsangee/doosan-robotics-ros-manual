@@ -1,0 +1,38 @@
+{# _templates/versions.html #}
+{% set show_switcher = (versions and (versions.branches or versions.tags)) %}
+{% if (READTHEDOCS or display_lower_left) and show_switcher %}
+  <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book"></span>
+      {{ current_version.name if current_version else 'unknown' }}
+      <span class="fa fa-caret-down"></span>
+    </span>
+
+    <div class="rst-other-versions">
+      {% set allowed = ['humble', 'jazzy'] %}
+      {% set items = [] %}
+      {% for b in versions.branches %}
+        {% if b.name in allowed %}
+          {% set _ = items.append(b) %}
+        {% endif %}
+      {% endfor %}
+
+      {% set items = items|sort(attribute='name') %}
+      {% set items = (items|selectattr('name','equalto','jazzy')|list) + (items|rejectattr('name','equalto','jazzy')|list) %}
+
+      {% if items %}
+      <dl>
+        <dt>{{ _('Versions') }}</dt>
+        {% for v in items %}
+          {% set label = v.name %}
+          <dd>
+            <a href="{{ v.url }}">
+              {{ label }}{% if v.name == 'jazzy' %} <span style="font-size:.85em;">(jazzy)</span>{% endif %}
+            </a>
+          </dd>
+        {% endfor %}
+      </dl>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

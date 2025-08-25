@@ -1,10 +1,4 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Doosan Robotics ROS2 Manual'
 copyright = '2025, ms'
@@ -12,19 +6,17 @@ author = 'ms'
 version = '1.0'
 release = '1.0'
 
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
 extensions = [
-    'sphinx.ext.autodoc',     # 자동 문서화: docstring 기반
-    'sphinx.ext.napoleon',    # 구글/넘피 스타일 docstring 파싱
-    'sphinx.ext.todo',        # TODO 지원 (.. todo::)
-    'sphinx.ext.viewcode'     # 소스코드 보기 링크
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    'sphinx_multiversion',
+    'sphinx.ext.githubpages',
 ]
 
-
 templates_path = ['_templates']
-exclude_patterns = []
+exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
 
 rst_prolog = """
 .. |br| raw:: html
@@ -32,26 +24,30 @@ rst_prolog = """
    <br />
 """
 
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-# Add custom CSS
-html_css_files = [
-    'manual.css',
-]
+html_css_files = ['manual.css']
 
-# 문서 제목 변경
 html_title = 'ROS2 Manual Guide v1.0'
-html_logo = 'tutorials/images/etc/Doosan_logo.png' # logo
-# html_favicon = '_static/favicon.ico'
+html_logo = '_static/doosan_logo.png'
 
 html_sidebars = {
-    '**': [
-        'globaltoc.html',
-        'relations.html',
-        'searchbox.html'
-    ]
+    "**": [
+        "localtoc.html",
+        "relations.html",
+        "searchbox.html", 
+        "versions.html",  
+    ],
+}
+
+html_theme_options = {
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'titles_only': False,
+}
+
+html_context = {
+    'display_lower_left': True,
 }
