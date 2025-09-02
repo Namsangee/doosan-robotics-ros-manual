@@ -1,14 +1,14 @@
-Doosan Robotics ROS2 documentation
+Doosan Robotics ROS2 Humble documentation
 ==============================================
 
-.. image:: tutorials/images/etc/robot_series.png
-   :alt: MoveIt RViz2 Launch Screenshot
+.. image:: tutorials/images/etc/a0509_robot_.png
+   :alt: robot_series
    :width: 100%
    :align: center
 
 .. raw:: html
 
-   <br><br>
+   <br>
    
 .. toctree::
    :maxdepth: 2
