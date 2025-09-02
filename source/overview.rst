@@ -10,6 +10,11 @@ Overview
    overview/architecture
    overview/package
 
+.. image:: tutorials/images/etc/robot_series.png
+   :alt: robot_series
+   :width: 100%
+   :align: center
+
 .. rubric:: Purpose
 
 This package provides control functionality for all Doosan robot models in the **ROS 2 Jazzy** environment.

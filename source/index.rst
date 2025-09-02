@@ -1,8 +1,8 @@
-Doosan Robotics ROS2 documentation
+Doosan Robotics ROS2 Jazzy documentation
 ==============================================
 
-.. image:: tutorials/images/etc/robot_series.png
-   :alt: MoveIt RViz2 Launch Screenshot
+.. image:: tutorials/images/etc/a0509_robot_.png
+   :alt: robot_series
    :width: 100%
    :align: center
 

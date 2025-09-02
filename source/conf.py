@@ -33,7 +33,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ['manual.css']
 html_title = 'ROS2 Manual Guide v1.0'
-html_logo = '_static/doosan_logo.png'
+html_logo = 'tutorials/images/etc/Doosan_logo.png'
 
 html_sidebars = {
     "**": [
