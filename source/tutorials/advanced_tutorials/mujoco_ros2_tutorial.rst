@@ -31,6 +31,7 @@ Prerequisites
 1.  **Install MuJoCo**
 
     Download the appropriate version from the `official releases <https://github.com/google-deepmind/mujoco/releases>`_ and unzip it. For more details, refer to the `MuJoCo documentation <https://mujoco.org/>`_.
+    Download the zip or tar.gz file with the name containing (linux-x86_64) and extract it to your designated location.”
 
 2.  **Set Environment Variable**
 
@@ -39,6 +40,8 @@ Prerequisites
     .. code-block:: bash
 
        export MUJOCO_DIR=/PATH/TO/MUJOCO/mujoco-3.x.x
+       export PATH=$MUJOCO_DIR/bin:$PATH
+       export LD_LIBRARY_PATH=$MUJOCO_DIR/lib:$LD_LIBRARY_PATH
 
 3.  **Install MuJoCo ROS 2 Control Package**
 
@@ -52,15 +55,9 @@ Prerequisites
        # Clone and build the package from a specific commit
        cd ~/ros2_ws/src
        git clone https://github.com/moveit/mujoco_ros2_control.git
-       cd mujoco_ros2_control
-       git checkout bd2d576331a1be2d2701f35f1b736297d09f1cea
        cd ~/ros2_ws
        colcon build
        source install/setup.bash
-
-    .. note::
-       Recent versions of ``mujoco_ros2_control`` may have simulation time issues. Extra change or tuning may be required.
-
 
 Command
 -------
