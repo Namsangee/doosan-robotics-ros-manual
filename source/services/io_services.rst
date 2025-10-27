@@ -41,7 +41,7 @@ This is a service to check the current output status of the digital contact moun
 
 .. code-block::
 
-   int8       value    # Current output status (0 = ON, 1 = OFF) !!!! manual은 반대로
+   int8       value    # Current output status (0 = OFF, 1 = ON)
    bool       success
 
 
@@ -76,7 +76,7 @@ This service sends the signal of the robot tool from the digital contact point.
 .. code-block::
 
    int8       index   # flange digital output port(1 ~ 6)
-   int8       value   # 0 : ON, 1 : OFF
+   int8       value   # 0 : OFF, 1 : ON
 
 **Response:**
 
@@ -102,7 +102,7 @@ This service gets the current tool IO output status.
 
 .. code-block::
 
-   int8       value    # Current output status (0 = ON, 1 = OFF) !!! manual과 반대
+   int8       value    # Current output status (0 = OFf, 1 = ON)
    bool       success
 
 .. _GetToolDigitalInput:
