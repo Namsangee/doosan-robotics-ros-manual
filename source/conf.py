@@ -8,7 +8,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
-    'sphinx.ext.viewcode',
     'sphinx_multiversion',
     'sphinx.ext.githubpages',
 ]
@@ -31,9 +30,6 @@ def setup_smv_from_origin():
             ["git", "branch", "-r", "--format", "%(refname:short)"],
             text=True,
         )
-    except Exception:
-        branches = ["jazzy", "humble"]
-    else:
         branches = []
         for line in out.splitlines():
             name = line.strip()
@@ -43,9 +39,11 @@ def setup_smv_from_origin():
             if name == "HEAD":
                 continue
             branches.append(name)
-
         if not branches:
             branches = ["jazzy", "humble"]
+    except Exception:
+        branches = ["jazzy", "humble"]
+
     branches = sorted(set(branches), reverse=True)
     escaped = [re.escape(b) for b in branches]
     whitelist = r"^(" + "|".join(escaped) + r")$"
@@ -64,7 +62,6 @@ def smv_rewrite_configs(app, config):
 def github_link_rewrite_branch(app, pagename, templatename, context, doctree):
     if app.config.smv_current_version:
         context['github_version'] = app.config.smv_current_version
-
 
 def setup(app):
     app.connect('config-inited', smv_rewrite_configs)
@@ -98,6 +95,8 @@ html_context = {
     "display_github": True,
     "github_user": "namsangee",
     "github_repo": "doosan-robotics-ros-manual",
-    "github_version": "jazzy",
+    "github_version": smv_latest_version,
     "conf_py_path": "/source/",
 }
+
+html_show_sourcelink = False

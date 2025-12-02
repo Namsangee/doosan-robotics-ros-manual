@@ -50,28 +50,12 @@ jobs:
 
       - name: Create root redirect to latest version
         run: |
-          LATEST=$(find _site -maxdepth 1 -type d -printf '%f\n' \
-            | grep -v '^_site$' \
-            | grep -v '^\.' \
-            | sort -r \
-            | head -n 1)
-
-          echo "Redirecting to: $LATEST"
+          LATEST=$(ls -d _site/*/ | sort -r | head -n 1 | xargs basename)
 
           cat > _site/index.html <<EOF
-          <!doctype html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <meta http-equiv="refresh" content="0; url=./$LATEST/">
-              <link rel="canonical" href="./$LATEST/">
-              <title>Redirecting to $LATEST</title>
-            </head>
-            <body>
-              <p>Redirecting to <a href="./$LATEST/">$LATEST docs</a>...</p>
-            </body>
-          </html>
+          <meta http-equiv="refresh" content="0; url=./$LATEST/">
           EOF
+
 
       - name: Ensure .nojekyll
         run: touch _site/.nojekyll
