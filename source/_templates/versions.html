@@ -1,6 +1,5 @@
 {# _templates/versions.html #}
-{% set show_switcher = (versions and (versions.branches or versions.tags)) %}
-{% if show_switcher %}
+{% if versions and (versions.branches or versions.tags) %}
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"></span>
@@ -9,22 +8,13 @@
     </span>
 
     <div class="rst-other-versions">
-      {% set allowed = ['humble', 'jazzy'] %}
-      {% set items = [] %}
-      {% for b in versions.branches %}
-        {% if b.name in allowed %}
-          {% set _ = items.append(b) %}
-        {% endif %}
-      {% endfor %}
-
-      {% set items = items|sort(attribute='name') %}
-      {% set items = (items|selectattr('name','equalto','jazzy')|list) + (items|rejectattr('name','equalto','jazzy')|list) %}
+      {% set items = versions.branches | sort(attribute='name') %}
 
       {% if items %}
       <dl>
         <dt>{{ _('Versions') }}</dt>
         {% for v in items %}
-          <dd>
+          <dd class="{% if current_version and v.name == current_version.name %}active{% endif %}">
             <a href="{{ v.url }}">{{ v.name }}</a>
           </dd>
         {% endfor %}

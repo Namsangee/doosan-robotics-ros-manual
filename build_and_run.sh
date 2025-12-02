@@ -1,43 +1,46 @@
 #!/usr/bin/env bash
-set -Eeuo pipefail
+set -euo pipefail
 
-# 기본값 설정
-SRC_DIR="${1:-source}"   # conf.py가 있는 디렉토리
-OUT_DIR="${2:-build}"    # HTML 출력 디렉토리
-PORT="${3:-8000}"        # 웹서버 포트
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="${SCRIPT_DIR}"
 
-# PATH에 ~/.local/bin 추가
-export PATH="$HOME/.local/bin:$PATH"
+SRC_DIR="${ROOT_DIR}/source"
+OUT_DIR="${ROOT_DIR}/_site"
+PORT="${1:-8000}"
 
-# sphinx-build 실행 경로 탐색
-if command -v sphinx-build >/dev/null 2>&1; then
-  SPHINX_CMD="sphinx-build"
-elif [ -x "$HOME/.local/share/pipx/venvs/sphinx/bin/sphinx-build" ]; then
-  SPHINX_CMD="$HOME/.local/share/pipx/venvs/sphinx/bin/sphinx-build"
+if ! command -v sphinx-multiversion >/dev/null 2>&1; then
+  echo "sphinx-multiversion is not installed."
+  echo "Installing dependencies from requirements.txt..."
+  pip install -r "${ROOT_DIR}/requirements.txt"
+fi
+
+if ss -ltn | grep -q ":${PORT} "; then
+  PORT=$((PORT+1))
+fi
+
+echo "Cleaning previous build..."
+rm -rf "${OUT_DIR}"
+
+echo "Building multi-version documentation..."
+sphinx-multiversion "${SRC_DIR}" "${OUT_DIR}"
+
+if [[ -d "${OUT_DIR}/jazzy" ]]; then
+  URL="http://localhost:${PORT}/jazzy/index.html"
 else
-  SPHINX_CMD="python3 -m sphinx"
+  URL="http://localhost:${PORT}/humble/index.html"
 fi
 
-# conf.py 존재 여부 확인
-if [ ! -f "$SRC_DIR/conf.py" ]; then
-  echo "conf.py not found in '$SRC_DIR'."
-  echo "Usage: $0 <source_dir> <build_dir> [port]"
-  exit 1
+cd "${OUT_DIR}"
+
+echo ""
+echo "Serving at: ${URL}"
+echo "Press Ctrl+C to stop."
+echo ""
+
+if command -v xdg-open >/dev/null 2>&1; then
+  (sleep 1 && xdg-open "${URL}" >/dev/null 2>&1) &
+elif command -v open >/dev/null 2>&1; then
+  (sleep 1 && open "${URL}") &
 fi
 
-mkdir -p "$OUT_DIR"
-
-# 문서 빌드
-echo "Building Sphinx documentation..."
-$SPHINX_CMD -b html "$SRC_DIR" "$OUT_DIR"
-
-# 포트 사용 중이면 종료
-if command -v fuser >/dev/null 2>&1; then
-  fuser -k "${PORT}/tcp" >/dev/null 2>&1 || true
-elif command -v lsof >/dev/null 2>&1; then
-  lsof -t -i:"$PORT" | xargs -r kill -9 || true
-fi
-
-# 웹서버 실행
-echo "Serving documentation at http://localhost:${PORT}"
-python3 -m http.server "$PORT" --directory "$OUT_DIR"
+python3 -m http.server "${PORT}"
