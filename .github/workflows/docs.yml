@@ -3,8 +3,7 @@ name: Build & Deploy Multi-Version Docs
 on:
   push:
     branches:
-      - humble
-      - jazzy
+      - "**"
   workflow_dispatch:
 
 permissions:
@@ -73,7 +72,6 @@ jobs:
             </body>
           </html>
           EOF
-
 
       - name: Ensure .nojekyll
         run: touch _site/.nojekyll
