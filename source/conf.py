@@ -50,8 +50,7 @@ def _build_smv_branch_whitelist():
 
     if not branches:
         return r"^(humble|jazzy)$"
-    
-    branches = sorted(branches, reverse=True)
+
     escaped = [re.escape(b) for b in branches]
     return r"^(" + "|".join(escaped) + r")$"
 
@@ -62,12 +61,8 @@ exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
 smv_remote_whitelist = r'^origin$'
 smv_branch_whitelist = _build_smv_branch_whitelist()
 smv_tag_whitelist = r'^$'
-_match = re.match(r'^\^\(([^|)]+)', smv_branch_whitelist)
-if _match:
-    smv_latest_version = _match.group(1)
-else:
-    smv_latest_version = 'jazzy'  # fallback
-    
+smv_latest_version = 'jazzy'
+
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_css_files = ['manual.css']
