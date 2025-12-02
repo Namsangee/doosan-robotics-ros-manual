@@ -27,9 +27,6 @@ import re
 import subprocess
 
 def _build_smv_branch_whitelist():
-    """
-    Include ALL remote branches from origin (CI safe).
-    """
     try:
         out = subprocess.check_output(
             ["git", "branch", "-r", "--format", "%(refname:short)"],
