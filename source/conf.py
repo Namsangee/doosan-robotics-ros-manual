@@ -27,41 +27,45 @@ import re
 import subprocess
 
 def _build_smv_branch_whitelist():
-    """
-    Include ALL remote branches from origin (CI safe).
-    """
     try:
         out = subprocess.check_output(
             ["git", "branch", "-r", "--format", "%(refname:short)"],
             text=True,
         )
     except Exception:
-        return r"^(humble|jazzy)$"
+        branches = ["jazzy", "humble"]
+    else:
+        branches = []
+        for line in out.splitlines():
+            name = line.strip()
 
-    branches = []
-    for line in out.splitlines():
-        name = line.strip()
-        if not name.startswith("origin/"):
-            continue
-        name = name.replace("origin/", "")
-        if name in ("HEAD",):
-            continue
-        branches.append(name)
+            if not name.startswith("origin/"):
+                continue
 
-    if not branches:
-        return r"^(humble|jazzy)$"
+            name = name.replace("origin/", "")
+
+            if name == "HEAD":
+                continue
+
+            branches.append(name)
+
+        if not branches:
+            branches = ["jazzy", "humble"]
+
+    branches = sorted(set(branches), reverse=True)
 
     escaped = [re.escape(b) for b in branches]
-    return r"^(" + "|".join(escaped) + r")$"
+    whitelist = r"^(" + "|".join(escaped) + r")$"
 
+    latest = branches[0]
+    return whitelist, latest
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
 
 smv_remote_whitelist = r'^origin$'
-smv_branch_whitelist = _build_smv_branch_whitelist()
 smv_tag_whitelist = r'^$'
-smv_latest_version = 'jazzy'
+smv_branch_whitelist, smv_latest_version = _build_smv_branch_whitelist()
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
