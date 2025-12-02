@@ -3,7 +3,8 @@ name: Build & Deploy Multi-Version Docs
 on:
   push:
     branches:
-      - "**"
+      - humble
+      - jazzy
   workflow_dispatch:
 
 permissions:
@@ -47,6 +48,16 @@ jobs:
       - name: Build with sphinx-multiversion
         run: |
           sphinx-multiversion source _site
+
+      # - name: Create root redirect to smv_latest_version (jazzy)
+      #   run: |
+      #     echo "<!doctype html>
+      #     <meta charset='utf-8'>
+      #     <meta http-equiv='refresh' content='0; url=./jazzy/'>
+      #     <link rel='canonical' href='./jazzy/'>
+      #     <title>Redirecting to latest</title>
+      #     <p>Redirecting to <a href='./jazzy/'>latest docs</a>...</p>" \
+      #     > _site/index.html
 
       - name: Ensure .nojekyll
         run: touch _site/.nojekyll

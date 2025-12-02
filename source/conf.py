@@ -21,7 +21,6 @@ rst_prolog = """
 
    <br />
 """
-
 import os
 import re
 import subprocess
@@ -41,7 +40,7 @@ def _build_smv_branch_whitelist():
         if not name.startswith("origin/"):
             continue
         name = name.replace("origin/", "")
-        if name in ("HEAD",):
+        if name == "HEAD":
             continue
         branches.append(name)
 
@@ -51,9 +50,11 @@ def _build_smv_branch_whitelist():
     escaped = [re.escape(b) for b in branches]
     return r"^(" + "|".join(escaped) + r")$"
 
+smv_remote_whitelist = r'^origin$'
+smv_branch_whitelist = _build_smv_branch_whitelist()
+smv_tag_whitelist = r'^$'
+smv_latest_version = 'jazzy'
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
 
 smv_remote_whitelist = r'^origin$'
 smv_branch_whitelist = _build_smv_branch_whitelist()
