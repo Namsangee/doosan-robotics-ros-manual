@@ -100,5 +100,3 @@ html_context = {
 }
 
 html_show_sourcelink = False
-
-html_baseurl = "https://namsangee.github.io/doosan-robotics-ros-manual/"
