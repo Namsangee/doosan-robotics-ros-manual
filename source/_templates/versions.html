@@ -8,7 +8,7 @@
     </span>
 
     <div class="rst-other-versions">
-      {% set items = versions.branches | sort(attribute='name') %}
+      {% set items = versions.branches | sort(attribute='name', reverse=true) %}
 
       {% if items %}
       <dl>
