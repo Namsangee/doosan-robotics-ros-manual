@@ -36,14 +36,12 @@ def _build_smv_branch_whitelist():
     repo_root = os.path.dirname(__file__)
 
     try:
-        # List ALL local branches
         out = subprocess.check_output(
             ["git", "branch", "--format", "%(refname:short)"],
             cwd=repo_root,
             text=True,
         )
     except Exception:
-        # If git unavailable (CI with shallow clone), fallback to main only
         return r"^(main)$"
 
     branches = []
@@ -51,7 +49,7 @@ def _build_smv_branch_whitelist():
         name = line.strip()
         if not name:
             continue
-        branches.append(name)   # include EVERYTHING
+        branches.append(name)
 
     if not branches:
         return r"^(main)$"
@@ -67,7 +65,6 @@ smv_remote_whitelist = r'^origin$'
 
 smv_branch_whitelist = _build_smv_branch_whitelist()
 
-# 태그는 사용 안 함
 smv_tag_whitelist = r'^$'
 
 smv_latest_version = 'jazzy'
