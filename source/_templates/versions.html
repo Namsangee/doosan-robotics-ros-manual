@@ -3,7 +3,7 @@
   <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book"></span>
-      {{ current_version.name if current_version else 'unknown' }}
+      Other Versions
       <span class="fa fa-caret-down"></span>
     </span>
 
@@ -12,7 +12,7 @@
 
       {% if items %}
       <dl>
-        <dt>{{ _('Versions') }}</dt>
+        <dt>Other Versions</dt>
         {% for v in items %}
           <dd class="{% if current_version and v.name == current_version.name %}active{% endif %}">
             <a href="{{ v.url }}">{{ v.name }}</a>
