@@ -91,6 +91,7 @@ html_theme_options = {
     "sticky_navigation": True,
     "navigation_depth": 4,
     "titles_only": False,
+    "use_edit_page_button": True,
 }
 
 html_context = {
