@@ -48,6 +48,15 @@ jobs:
         run: |
           sphinx-multiversion source _site
 
+      - name: Create root redirect to latest version
+        run: |
+          LATEST=$(ls -d _site/*/ | sort -r | head -n 1 | xargs basename)
+
+          cat > _site/index.html <<EOF
+          <meta http-equiv="refresh" content="0; url=./$LATEST/">
+          EOF
+
+
       - name: Ensure .nojekyll
         run: touch _site/.nojekyll
 
