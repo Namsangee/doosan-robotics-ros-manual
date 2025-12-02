@@ -1,18 +1,16 @@
-# -- Project information -----------------------------------------------------
 project = 'Doosan Robotics ROS2 Manual'
 author = 'ms'
 copyright = '2025, ms'
 version = '1.0'
 release = '1.0'
 
-# -- General configuration ---------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
-    'sphinx_multiversion',     # 멀티버전
-    'sphinx.ext.githubpages',  # .nojekyll 등 (있어도 되고 없어도 됨)
+    'sphinx_multiversion',
+    'sphinx.ext.githubpages',
 ]
 
 templates_path = ['_templates']
@@ -61,11 +59,8 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
 
 smv_remote_whitelist = r'^origin$'
-
 smv_branch_whitelist = _build_smv_branch_whitelist()
-
 smv_tag_whitelist = r'^$'
-
 smv_latest_version = 'jazzy'
 
 html_theme = 'sphinx_rtd_theme'
