@@ -28,7 +28,6 @@ jobs:
       - name: Fetch all branches/tags
         run: |
           git fetch --all --tags --prune
-          git fetch origin +refs/heads/*:refs/remotes/origin/*
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -44,6 +43,27 @@ jobs:
       - name: Build with sphinx-multiversion
         run: |
           python -m sphinx_multiversion source _site
+
+      - name: Create root redirect to smv_latest_version
+        run: |
+          python - <<'EOF'
+          import re, pathlib
+
+          conf = pathlib.Path("source/conf.py").read_text()
+          m = re.search(r"smv_latest_version\s*=\s*['\"]([^'\"]+)['\"]", conf)
+          latest = m.group(1) if m else "jazzy"
+
+          path = pathlib.Path("_site/index.html")
+          path.write_text(f"""<!doctype html>
+          <meta charset="utf-8">
+          <meta http-equiv="refresh" content="0; url={latest}/">
+          <link rel="canonical" href="{latest}/">
+          <title>Redirecting…</title>
+          <p>Redirecting to <a href="{latest}/">{latest} docs</a>…</p>
+          """)
+
+          print(f"Root index.html created → /{latest}/")
+          EOF
 
       - name: Ensure .nojekyll
         run: |
