@@ -30,33 +30,32 @@ import subprocess
 
 def _build_smv_branch_whitelist():
     """
-    Dynamically include ALL branches detected by git.
-    No filtering.
+    Include ALL remote branches from origin (CI safe).
     """
-    repo_root = os.path.dirname(__file__)
-
     try:
         out = subprocess.check_output(
-            ["git", "branch", "--format", "%(refname:short)"],
-            cwd=repo_root,
+            ["git", "branch", "-r", "--format", "%(refname:short)"],
             text=True,
         )
     except Exception:
-        return r"^(main)$"
+        return r"^(humble|jazzy)$"
 
     branches = []
     for line in out.splitlines():
         name = line.strip()
-        if not name:
+        if not name.startswith("origin/"):
+            continue
+        name = name.replace("origin/", "")
+        if name in ("HEAD",):
             continue
         branches.append(name)
 
     if not branches:
-        return r"^(main)$"
+        return r"^(humble|jazzy)$"
 
     escaped = [re.escape(b) for b in branches]
-    regex = r"^(" + "|".join(escaped) + r")$"
-    return regex
+    return r"^(" + "|".join(escaped) + r")$"
+
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', '_site', 'Thumbs.db', '.DS_Store']
