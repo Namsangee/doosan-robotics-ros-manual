@@ -3,7 +3,7 @@ name: Build & Deploy Multi-Version Docs
 on:
   push:
     branches:
-      - jazzy
+      - "**"
   workflow_dispatch:
 
 permissions:
