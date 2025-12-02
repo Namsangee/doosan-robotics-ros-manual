@@ -2,7 +2,8 @@ name: Build & Deploy Sphinx Docs
 
 on:
   push:
-    branches: [ humble, jazzy ]
+    branches:
+      - "**"
   workflow_dispatch:
 
 permissions:
@@ -17,6 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout (full history for SMV)
         uses: actions/checkout@v4
@@ -31,7 +33,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           cache: pip
 
       - name: Install dependencies
@@ -43,42 +45,12 @@ jobs:
         run: |
           python -m sphinx_multiversion source _site
 
-      - name: Create landing page (redirect to Humble)
-        run: |
-          mkdir -p _site
-          cat > _site/index.html <<'EOF'
-          <!doctype html><meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=/doosan-robotics-ros-manual/humble/">
-          <link rel="canonical" href="/doosan-robotics-ros-manual/humble/">
-          <title>Redirecting…</title>
-          <p>Redirecting to <a href="/doosan-robotics-ros-manual/humble/">Humble docs</a>…</p>
-          EOF
-
-      - name: Create 404 page (redirect to humble)
-        run: |
-          cat > _site/404.html <<'EOF'
-          <!doctype html>
-          <meta charset="utf-8">
-          <meta http-equiv="refresh" content="0; url=/doosan-robotics-ros-manual/humble/">
-          <link rel="canonical" href="/doosan-robotics-ros-manual/humble/">
-          <title>Not Found · Redirecting…</title>
-          <p>Page not found. Go to <a href="/doosan-robotics-ros-manual/humble/">Humble docs</a>.</p>
-          <script>
-            (function() {
-              var target = "/doosan-robotics-ros-manual/humble/";
-              if (location.pathname !== target) location.replace(target);
-            })();
-          </script>
-          EOF
-
       - name: Ensure .nojekyll
         run: |
           touch _site/.nojekyll
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -87,10 +59,11 @@ jobs:
 
   deploy:
     needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
