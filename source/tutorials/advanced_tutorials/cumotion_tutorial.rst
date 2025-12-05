@@ -38,6 +38,7 @@ provided by **NVIDIA**. This ensures:
 - Isaac ROS development container initialization
 
 `Official Isaac ros setup guide <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_ 
+
 Only after completing the guide above, proceed with the Doosan + cuMotion integration
 steps described below.
 
@@ -446,6 +447,160 @@ Detach
 .. code-block:: bash
 
    ros2 service call /attach_detach_command dsr_cumotion_msgs/srv/PickPlace "{motion_type: 1}"
+
+
+Obstacle Manager
+-----------------
+
+The ``obstacle_manager`` node is a **dynamic collision object manager** used by both **MoveIt 2 and the cuMotion motion planning pipeline**.
+This node loads predefined static and mesh-based obstacles from a YAML configuration file at startup and publishes them to the
+MoveIt **Planning Scene**.
+
+At initialization, the node reads the specified YAML file and loads the following obstacle types:
+
+- ``BOX``
+- ``SPHERE``
+- ``CYLINDER``
+- ``MESH``
+
+All configured obstacles are published **once** to the ``/planning_scene`` topic after a **2-second delay**.
+
+Each collision object contains the following information:
+- Reference coordinate frame (``frame_id``)
+- 3D position
+- Optional orientation
+- Geometric dimensions or mesh scale
+
+For ``MESH`` objects, the node uses the **trimesh** library to load a 3D mesh file (e.g., STL) and converts it into
+a ROS-compatible collision object.
+
+In addition, the node subscribes to the ``/collision_remove`` topic, allowing:
+- **Selective removal** of a single collision object by ID
+- **Complete removal** of all collision objects by publishing an empty string
+
+This enables dynamic environment updates during runtime while maintaining a consistent planning scene
+for cuMotion and MoveIt 2.
+
+Usage
+~~~~~~
+
+The default obstacle configuration file is:
+
+::
+
+   dsr_cumotion/config/obstacle.yaml
+
+If ``frame_id`` is not explicitly specified, it is automatically set to:
+
+::
+
+   base_link
+
+Example YAML Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: yaml
+
+   objects:
+     - id: {name}
+       type: cylinder
+       position: [0.0, 0,0, 0.0]
+       dimensions: [0.0, 0.0]   # radius, height
+
+     - id: {name}
+       type: cylinder
+       position: [0.0, 0.0, 0.0]
+       dimensions: [0.0, 0.0]   # radius, height
+
+     - id: {name}
+       type: cylinder
+       position: [0.0, 0.0, 0.0]
+       dimensions: [0.0, 0.0]   # radius, height
+
+     - id: {name}
+       type: mesh
+       mesh_path: "path"         # file path
+       position: [0.0, 0.0, 0.0]
+       orientation: [0.0, 0.0, 0.0, 1.0]
+       scale: [1.0, 1.0, 1.0]
+
+YAML Parameter Specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 15 15 50
+
+   * - Key
+     - Type
+     - Required
+     - Description
+   * - ``id``
+     - ``string``
+     - Yes
+     - Unique name of the collision object (MoveIt scene object ID). This ID is also used for object removal.
+   * - ``type``
+     - ``string``
+     - Yes
+     - Shape type of the obstacle. One of ``BOX``, ``SPHERE``, ``CYLINDER``, or ``MESH`` (case-insensitive).
+   * - ``position``
+     - ``[x, y, z]``
+     - Yes
+     - Center position of the object in meters, defined relative to ``frame_id``.
+   * - ``orientation``
+     - ``[qx, qy, qz, qw]``
+     - No
+     - Object orientation in quaternion format. Default is ``[0, 0, 0, 1]``.
+   * - ``frame_id``
+     - ``string``
+     - No
+     - Reference coordinate frame of the object. Defaults to ``base_link`` if not specified.
+   * - ``dimensions``
+     - ``list``
+     - Shape-dependent
+     - Shape dimensions (e.g., BOX: ``[x, y, z]``, CYLINDER: ``[radius, height]``).
+   * - ``mesh_path`` / ``mesh_resource``
+     - ``string``
+     - MESH only
+     - Path to the mesh file. Absolute or relative path is supported.
+   * - ``scale``
+     - ``[sx, sy, sz]``
+     - No (MESH only)
+     - Mesh scaling factor. Default is ``[1.0, 1.0, 1.0]``.
+
+Collision Object Removal
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Remove a specific object by ID:
+
+.. code-block:: bash
+
+   ros2 topic pub /collision_remove std_msgs/msg/String "{data: 'cyl1'}" --once
+
+Remove all collision objects:
+
+.. code-block:: bash
+
+   ros2 topic pub /collision_remove std_msgs/msg/String "{data: ''}" --once
+
+Launch Integration
+~~~~~~~~~~~~~~~~~~~
+
+The obstacle manager is automatically enabled when launching cuMotion with:
+
+::
+
+   obstacle:=true or false
+
+Example:
+
+.. code-block:: bash
+
+   ros2 launch dsr_cumotion start_cumotion.launch.py \
+     mode:=virtual \
+     host:=127.0.0.1 \
+     obstacle:=true
+
 
 References
 ----------
