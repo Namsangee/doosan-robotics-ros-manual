@@ -601,6 +601,105 @@ Example:
      host:=127.0.0.1 \
      obstacle:=true
 
+Major Package Overview
+----------------------
+
+This section describes the **core packages** that form the
+**Doosan + Isaac ROS + cuMotion integrated system**, including their
+roles and key responsibilities within the overall architecture.
+
+
+``dsr_cumotion``
+~~~~~~~~~~~~~~~~
+
+**Role: Core Integration Package for Doosan, MoveIt 2, and cuMotion**
+
+The ``dsr_cumotion`` package is the **central integration layer** of the system.
+It connects the following components into a single execution pipeline:
+
+- Doosan ROS 2 hardware interface
+- MoveIt 2 motion planning framework
+- NVIDIA cuMotion planner execution
+- Pick-and-place task server
+- Planning scene and static obstacle management
+
+
+Key Responsibilities
+^^^^^^^^^^^^^^^^^^^^
+
+- Provides the **main system launch entry point** (``start_cumotion.launch.py``)
+- Configures the **cuMotion and MoveIt 2 planning pipelines**
+- Manages **robot model integration**:
+
+  - URDF
+  - SRDF
+  - XRDF
+
+- Provides a **Pick-and-Place task execution server**
+- Manages **static obstacles using the Planning Scene**
+- Manages **workspace boundaries (workbound)**
+
+This package directly controls the **core motion planning and execution behavior of the robot**.
+
+
+``dsr_cumotion_goal_interface``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Role: Motion Command Dispatch Interface**
+
+The ``dsr_cumotion_goal_interface`` package receives **high-level user commands**
+and acts as the **command gateway** that forwards them to the
+**MoveIt 2 + cuMotion execution pipeline**.
+
+
+Key Responsibilities
+^^^^^^^^^^^^^^^^^^^^
+
+- Subscribes to the ``/target_pose`` topic
+- Selects the appropriate execution strategy based on the command type:
+
+  - Absolute pose motion
+  - Joint-space motion
+  - Named pose motion
+  - Relative TCP motion
+
+- Sends motion goals to the **MoveIt 2 Action Server**
+- Monitors execution status and feedback
+- Executes commands sequentially using a **multi-command queue**
+
+This package serves as the **intermediate control layer between user commands and physical robot execution**.
+
+
+``dsr_cumotion_msgs``
+~~~~~~~~~~~~~~~~~~~~~
+
+**Role: System-Wide Message and Service Interface Definition Package**
+
+The ``dsr_cumotion_msgs`` package defines all **custom ROS 2 messages and service types**
+used throughout the system for **motion-level and task-level control**.
+
+
+Key Responsibilities
+^^^^^^^^^^^^^^^^^^^^
+
+- Defines the **unified motion command message** that supports:
+
+  - Absolute pose commands
+  - Joint commands
+  - Named target commands
+  - Relative TCP commands
+
+- Defines the **Pick-and-Place task control service interface**, including:
+
+  - Approach → attach → retreat sequence
+  - Approach → detach → retreat sequence
+
+- Provides the **standard API contract** between:
+
+  - User applications
+  - Command interface nodes
+  - Planning and execution subsystems
+
 
 References
 ----------
