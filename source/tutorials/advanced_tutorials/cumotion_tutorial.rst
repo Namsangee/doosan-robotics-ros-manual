@@ -1,4 +1,4 @@
-.. _cumotion_tutorial:
+.. _cumotion_tutorial(Jetson thor):
 
 cuMotion Integration(Jetson thor)
 ==================================
