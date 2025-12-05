@@ -37,7 +37,7 @@ provided by NVIDIA. This ensures:
 - CUDA and driver compatibility
 - Isaac ROS development container initialization
 
-`Official guide: <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_
+- `Official Isaac ros setup guide <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_
 
 .. raw:: html
 
@@ -55,6 +55,8 @@ steps described below.
 
 NVIDIA Driver Setup
 -------------------------------------------------
+This step installs and verifies the NVIDIA GPU driver required for all CUDA-based computation and GPU acceleration. 
+The NVIDIA driver enables the operating system to communicate directly with the GPU hardware and is a mandatory prerequisite for running Isaac ROS, cuMotion, and all GPU-accelerated Docker containers.
 
 Command
 ~~~~~~~~
@@ -72,6 +74,10 @@ Command
 
 NVIDIA Container Toolkit
 -------------------------------------------------
+The NVIDIA Container Toolkit enables Docker containers to access the host system’s GPU resources directly. 
+It provides the necessary runtime libraries and container hooks that allow CUDA, cuMotion, 
+and Isaac ROS to execute GPU workloads inside containers without performance degradation.
+
 
 Command
 ~~~~~~~
@@ -106,6 +112,10 @@ Command
 
 Workspace Setup
 ----------------
+
+This section describes the process of creating separate and independent workspaces for the NVIDIA Isaac ROS cuMotion stack 
+and the Doosan ROS 2 robot control stack. By isolating these two environments, 
+the system maintains a clean separation between GPU-accelerated core motion planning (Isaac ROS + cuMotion) and vendor-specific robot hardware control (Doosan ROS 2).
 
 Isaac ROS Workspace
 ~~~~~~~~~~~~~~~~~~~~
@@ -143,6 +153,13 @@ Doosan ROS 2 + cuMotion Workspace
 
 Container Execution
 -------------------------------------------------
+
+This step initializes and launches the Docker-based runtime environments required for the full cuMotion and Doosan ROS 2 integration. 
+The startup-doosan.sh script prepares the Doosan cuMotion Docker environment by configuring the build context, applying required settings, 
+and starting the Doosan-specific container for robot control and execution.
+
+Next, the run_dev.sh script launches the NVIDIA Isaac ROS development container, which provides the GPU-accelerated runtime environment 
+for cuMotion and motion planning.
 
 Command
 ~~~~~~~~
@@ -191,6 +208,12 @@ Command
 cuMotion Launch
 -------------------------------------------------
 
+This section launches the full cuMotion-based motion planning and execution pipeline for the Doosan robot in either real hardware mode or virtual simulation mode.
+In real mode, the system establishes a direct network connection to the physical robot controller using the specified IP address 
+and executes trajectories on the real hardware through the ROS 2 control interface.
+In virtual mode, the same motion planning pipeline is executed against a
+ simulated robot instance, allowing safe algorithm testing, parameter tuning, and integration validation without physical hardware.
+
 Command
 ~~~~~~~~
 
@@ -221,6 +244,45 @@ Gripper Configuration
 
    - Robotiq 2F-85 is supported **only in virtual mode**
    - VGC10 gripper controller is not launched automatically and must be started separately
+
+
+**cuMotion Launch Arguments**
+
+.. list-table::
+:header-rows: 1
+:widths: 20 20 60
+
+* * Argument
+  * Default
+  * Description
+* * `mode`
+  * `real`
+  * Selects the execution environment. `real` connects to the physical Doosan robot, while `virtual` runs the Doosan Emulator or simulation environment.
+* * `host`
+  * `127.0.0.1`
+  * Target controller address. Use the real robot controller IP in `real` mode, or the emulator host IP (local emulator uses `127.0.0.1`) in `virtual` mode.
+* * `model`
+  * `m1013`
+  * Robot model selection. Currently, **only the M1013 model is supported**.
+* * `gripper`
+  * `none`
+  * End-effector configuration. `none` loads the robot only, `vgc10` loads the OnRobot VGC10 model (controller must be started separately), and `2f85` loads the Robotiq 2F-85 model (**virtual mode only**).
+* * `enable_nvblox`
+  * `false`
+  * Enables real-time 3D environment reconstruction using NVBlox. This option requires high GPU memory and should be disabled on laptops or low-memory GPUs to allow **cuMotion-only operation**.
+* * `enable_cumotion`
+  * `true`
+  * Enables the cuMotion GPU-accelerated motion planning node.
+* * `enable_attach`
+  * `true`
+  * Enables the object attach/detach interface for pick-and-place operations.
+* * `obstacle`
+  * `true`
+  * Enables static obstacle generation through the MoveIt PlanningScene.
+* * `use_sim_time`
+  * `false`
+  * Selects the time source. `false` uses system wall time (must be used in `real` mode), and `true` enables simulated time for virtual environments.
+
 
 .. raw:: html
 
@@ -372,7 +434,10 @@ with respect to the current TCP or base frame.
 
 Object Attach / Detach
 -----------------------
-
+This node serves as an automatic Pick & Place sequence execution server for the Doosan robot.
+It performs motion execution using the MoveIt 2 + cuMotion motion planning pipeline, 
+and controls object grasping and releasing in simulation through the Isaac ROS AttachObject action,
+enabling both attach (grasp) and detach (release) operations.
 Attach
 ~~~~~~~
 
