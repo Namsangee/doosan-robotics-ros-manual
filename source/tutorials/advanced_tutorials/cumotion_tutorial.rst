@@ -3,6 +3,9 @@
 cuMotion Integration
 ====================
 
+Overview
+--------
+
 cuMotion provides GPU-accelerated motion planning for Doosan robots by integrating
 NVIDIA Isaac ROS with MoveIt 2 and the ROS 2 control stack.
 
@@ -19,6 +22,11 @@ the cuMotion-based motion planning pipeline.
    - CUDA: **12.8** (Docker base: 12.6)
    - ROS 2: **Humble**
 
+.. raw:: html
+
+   <br>
+   <br>
+
 System Prerequisites
 -------------------------------------------------
 
@@ -29,17 +37,21 @@ provided by NVIDIA. This ensures:
 - CUDA and driver compatibility
 - Isaac ROS development container initialization
 
-Official guide:
+`Official guide: <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_
 
 .. raw:: html
 
-   <a href="https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html" target="_blank">
-   https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html
-   </a>
+   <br>
+   <br>
 
 Only after completing the guide above, proceed with the Doosan + cuMotion integration
 steps described below.
 
+
+.. raw:: html
+
+   <br>
+   <br>
 
 NVIDIA Driver Setup
 -------------------------------------------------
@@ -53,6 +65,10 @@ Command
    sudo ubuntu-drivers list
    sudo ubuntu-drivers install nvidia:570
 
+.. raw:: html
+
+   <br>
+   <br>
 
 NVIDIA Container Toolkit
 -------------------------------------------------
@@ -83,6 +99,11 @@ Command
    sudo nvidia-ctk runtime configure --runtime=docker
    sudo systemctl daemon-reload && sudo systemctl restart docker
 
+.. raw:: html
+
+   <br>
+   <br>
+
 Workspace Setup
 ----------------
 
@@ -99,6 +120,11 @@ Isaac ROS Workspace
    git clone --recursive -b release-3.2 https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git
    git clone --recursive -b release-3.2 https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion.git
 
+.. raw:: html
+
+   <br>
+   <br>
+
 Doosan ROS 2 + cuMotion Workspace
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -109,6 +135,11 @@ Doosan ROS 2 + cuMotion Workspace
 
    git clone -b humble https://github.com/DoosanRobotics/doosan-robot2.git
    git clone -b humble https://github.com/DoosanRobotics/doosanrobotics_cumotion_driver
+
+.. raw:: html
+
+   <br>
+   <br>
 
 Container Execution
 -------------------------------------------------
@@ -133,6 +164,11 @@ GPU Verification
 
    nvidia-smi
 
+.. raw:: html
+
+   <br>
+   <br>
+
 ROS Environment Setup
 -------------------------------------------------
 
@@ -147,6 +183,11 @@ Command
    cd /ros2_ws
    source install/setup.bash
 
+.. raw:: html
+
+   <br>
+   <br>
+
 cuMotion Launch
 -------------------------------------------------
 
@@ -158,20 +199,19 @@ Command
   .. code-block:: bash
 
      ros2 launch dsr_cumotion start_cumotion.launch.py \
-       mode:=real host:=192.168.137.100 gripper:=true
+       mode:=real host:=192.168.137.100 gripper:=none
 
 - **Virtual Robot Mode**
 
   .. code-block:: bash
 
      ros2 launch dsr_cumotion start_cumotion.launch.py \
-       mode:=virtual host:=127.0.0.1 gripper:=true
+       mode:=virtual host:=127.0.0.1 gripper:=none
 
 Gripper Configuration
--------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
-Arguments
-~~~~~~~~~~
+**Arguments**
 
 - ``gripper:=none``   – Robot only  
 - ``gripper:=vgc10``  – OnRobot VGC10  
@@ -182,8 +222,13 @@ Arguments
    - Robotiq 2F-85 is supported **only in virtual mode**
    - VGC10 gripper controller is not launched automatically and must be started separately
 
+.. raw:: html
+
+   <br>
+   <br>
+
 Motion Command Topics
--------------------------------------------------
+----------------------
 
 Pose Command
 ~~~~~~~~~~~~~
@@ -198,8 +243,8 @@ It is used when both the target **position and orientation** need to be explicit
      max_vel_scale: 0.5, max_acc_scale: 0.4
    }" --once
 
-TargetPose.msg
-~~~~~~~~~~~~~~
+**TargetPose.msg**
+
 This message defines an **absolute target TCP pose**.  
 The orientation can be represented using **either Euler angles or a quaternion**.
 
@@ -238,8 +283,8 @@ It is used when only the **target joint configuration** is required, without def
      max_acc_scale: 0.4
    }" --once
 
-TargetJoint.msg
-~~~~~~~~~~~~~~~~
+**TargetJoint.msg**
+
 This message represents a **joint-space motion command**, where each joint angle is provided as an array.
 
 .. code-block:: bash
@@ -266,8 +311,8 @@ It is well-suited for **repetitive motions and initial pose setup**.
      max_acc_scale: 0.6
    }" --once
 
-TargetNamed.msg
-~~~~~~~~~~~~~~~~
+**TargetNamed.msg**
+
 This message sends the **name of a predefined target pose** as a string.
 
 .. code-block:: bash
@@ -296,8 +341,8 @@ It is mainly used for **fine adjustments (micro adjustments)** in either the TCP
      max_acc_scale: 0.5
    }" --once
 
-TargetRelative.msg
-~~~~~~~~~~~~~~~~~~
+**TargetRelative.msg**
+
 This message specifies **relative translational (dx, dy, dz) and rotational (drx, dry, drz) increments**
 with respect to the current TCP or base frame.
 
@@ -319,9 +364,14 @@ with respect to the current TCP or base frame.
    float64 max_vel_scale      # Velocity scaling (0.0 ~ 1.0, 0 means default)
    float64 max_acc_scale      # Acceleration scaling (0.0 ~ 1.0, 0 means default)
 
+.. raw:: html
+
+   <br>
+   <br>
+
 
 Object Attach / Detach
--------------------------------------------------
+-----------------------
 
 Attach
 ~~~~~~~
@@ -336,3 +386,9 @@ Detach
 .. code-block:: bash
 
    ros2 service call /attach_detach_command dsr_cumotion_msgs/srv/PickPlace "{motion_type: 1}"
+
+References
+----------
+
+- `cuMotion tutorial <https://nvidia-isaac-ros.github.io/v/release-3.2/repositories_and_packages/isaac_ros_cumotion/index.html>`_
+- `cuMotion github <https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion/tree/release-3.2>`_

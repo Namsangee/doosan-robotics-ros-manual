@@ -189,6 +189,6 @@ References
 ----------
 
 - `ROS2 Manual (old version) <https://manual.doosanrobotics.com/en/ros/>`_
-- `DRFL C++ API Manual <https://manual.doosanrobotics.com/en/api/>`_
+- `DRFL C++ API Manual <https://doosanrobotics.github.io/doosan-robotics-api-manual/GL013301/>`_
 - `DRL Programming Manual <https://manual.doosanrobotics.com/en/programming-manual/>`_
 
