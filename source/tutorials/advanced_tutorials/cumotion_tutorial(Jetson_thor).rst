@@ -269,9 +269,6 @@ Command
    * - ``gripper``
      - ``true``
      - End-effector configuration. ``false`` loads the robot only, ``true`` loads the OnRobot VGC10 model.
-   * - ``enable_nvblox``
-     - ``false``
-     - Enables real-time 3D environment reconstruction using NVBlox. This option requires high GPU memory and should be disabled on laptops or low-memory GPUs to allow **cuMotion-only operation**.
    * - ``enable_cumotion``
      - ``true``
      - Enables the cuMotion GPU-accelerated motion planning node.
