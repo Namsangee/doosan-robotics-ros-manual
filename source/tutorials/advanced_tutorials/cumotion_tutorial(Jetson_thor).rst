@@ -40,15 +40,25 @@ Jetson Thor Flashing and JetPack Installation
 
 Follow the official NVIDIA documentation to flash Jetson Thor and install JetPack 7.0:
 
-https://docs.nvidia.com/jetson/agx-thor-devkit/user-guide/latest/index.html
+`Official Jetson thor setup guide <https://docs.nvidia.com/jetson/agx-thor-devkit/user-guide/latest/index.html>`_
 
 Isaac ROS Setup for Jetson Thor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Complete the Isaac ROS environment setup for Jetson Thor using the following documentation:
 
-https://nvidia-isaac-ros.github.io/getting_started/index.html
+`Official Isaac ros setup guide <https://nvidia-isaac-ros.github.io/getting_started/index.html>`_
 
+.. note::
+   In official setup guide, you must complete both steps:
+
+   1. Compute setup
+   2. Developer Environment Setup
+
+.. warning::
+   On Jetson Thor systems, CUDA 13 or later and NVIDIA Driver 580 or newer are required.
+   Using older drivers (e.g., the 560 series) may cause runtime incompatibilities with
+   GPU-accelerated Docker containers, resulting in Isaac ROS or cuMotion not functioning properly.
 
 .. raw:: html
 
@@ -65,6 +75,7 @@ the system maintains a clean separation between GPU-accelerated core motion plan
 
 Isaac ROS Workspace
 ~~~~~~~~~~~~~~~~~~~~
+
 All repositories must be checked out to the release-4.0 branch to ensure compatibility.
 
 
@@ -110,17 +121,13 @@ Isaac ROS workspace by copying the required Docker build and runtime scripts.
 
 Command
 ~~~~~~~~
- Copying the ``docker/`` and ``scripts/`` Directories
+Copying the ``docker/`` and ``scripts/`` Directories
 
 .. code-block:: bash
 
    cp -r ~/ros2_ws/src/cumotion/docker   ~/workspaces/
    cp -r ~/ros2_ws/src/cumotion/scripts ~/workspaces/
 
-.. code-block:: bash
-
-   cd ~/workspaces/isaac_ros-dev/src/isaac_ros_common/scripts
-   ./run_dev.sh
 
 After copying, the workspace directory structure should be organized as follows:
 
@@ -142,22 +149,22 @@ during the build process.
 
 .. code-block:: bash
 
-   mkdir -p ~/workspaces/isaac_ros-dev/.isaac-ros-cli
+    mkdir -p ~/workspaces/isaac_ros-dev/.isaac-ros-cli
 
 
-Create the following configuration file:
-
-``config.yaml``
+Create the following configuration file: ``config.yaml``
 
 .. code-block:: yaml
 
-   environment:
-     mode: docker
+    cat << 'EOF' > config.yaml
+    environment:
+      mode: docker
 
-   docker:
-     image:
-       additional_image_keys:
-         - doosan
+    docker:
+      image:
+        additional_image_keys:
+          - doosan
+    EOF
 
 Docker Image Layer Composition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -211,11 +218,9 @@ Command
 
 .. code-block:: bash
 
-   source /opt/ros/jazzy/setup.bash
-   cd /workspaces/isaac_ros-dev
-   source install/setup.bash
-   cd /ros2_ws
-   source install/setup.bash
+   source /opt/ros/humble/setup.bash
+   source /workspaces/isaac_ros-dev/install/setup.bash
+   source /workspaces/ros2_ws/install/setup.bash
 
 .. raw:: html
 
@@ -248,6 +253,20 @@ Command
       ros2 launch dsr_cumotion start_cumotion.launch.py \
       mode:=virtual host:=127.0.0.1 gripper:=true
 
+.. raw:: html
+
+   <br>
+
+.. image::  ../images/cumotion/cumotion_launch1.png
+   :alt: cuMotion Launch
+   :width: 800px
+   :align: center
+
+.. raw:: html
+
+   <br>
+   <br>
+   
 **cuMotion Launch Arguments**
 
 .. list-table::
@@ -287,6 +306,85 @@ Command
    <br>
    <br>
 
+.. list-table::
+   :widths: 55 55
+   :align: center
+
+   * - .. container:: align-center
+
+          .. image:: ../images/cumotion/cumotion_gripper_none.png
+             :width: 200px
+          
+          **No gripper**
+
+     - .. container:: align-center
+
+          .. image:: ../images/cumotion/cumotion_gripper_vgc10.png
+             :width: 200px
+          
+          **OnRobot VGC10**
+
+
+.. note::
+   When specifying the ``host`` argument, note that different values are required
+   depending on the operation mode.  
+   For **virtual mode**, the host address must always be fixed to ``127.0.0.1``.  
+   For **real mode**, it is recommended to use an address in the ``192.168.137.x`` range,  
+   which must match the IP configured on the robot's TP.
+
+.. raw:: html
+
+   <br>
+   <br>
+   
+cuMotion Planning Demo
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following examples illustrate how cuMotion performs real-time, GPU-accelerated
+motion planning directly from the MoveIt RViz interface.  
+Simply dragging the TCP marker and selecting **Plan and Execute** triggers cuMotion
+to generate and execute an optimized trajectory on the robot.
+
+.. raw:: html
+
+   <br>
+
+**1. Basic Plan & Execute**
+
+This demo shows a straightforward target pose update in RViz.  
+
+.. image:: ../images/cumotion/cumotion_demo_basic.gif
+   :alt: cuMotion Basic Planning Demo
+   :width: 800px
+   :align: center
+
+.. raw:: html
+
+   <p style="text-align:center;"><i>Figure: Basic motion planning with cuMotion from a dragged TCP target.</i></p>
+   <br>
+
+
+**2. Obstacle-Aware Planning**
+
+This example demonstrates how cuMotion dynamically avoids obstacles in the environment.  
+Even with complex constraints, the GPU-accelerated planner quickly searches for a safe,
+collision-free trajectory.
+
+.. image:: ../images/cumotion/cumotion_demo_obstacle.gif
+   :alt: cuMotion Obstacle Avoidance Demo
+   :width: 800px
+   :align: center
+
+.. raw:: html
+
+   <p style="text-align:center;"><i>Figure: cuMotion computes an optimized trajectory that safely avoids obstacles.</i></p>
+   <br><br>
+
+.. raw:: html
+
+   <br>
+   <br>
+
 Motion Command Topics
 ----------------------
 
@@ -296,6 +394,7 @@ This command moves the end-effector to an **absolute target pose in the robot ba
 It is used when both the target **position and orientation** need to be explicitly specified.
 
 .. code-block:: bash
+
    # euler
    ros2 topic pub /target_pose dsr_cumotion_msgs/TargetPose "{move_type: 'pose',
       x: 0.0, y: 0.0, z: 0.0, 
@@ -345,6 +444,57 @@ It is mainly used for **fine adjustments (micro adjustments)** in either the TCP
       drx: 0.0, dry: 0.0, drz: 0.0, 
       max_vel_scale: 0.5, max_acc_scale: 0.5}" --once
 
+
+TargetPose.msg
+^^^^^^^^^^^^^^^^^^^
+.. code-block:: bash
+
+  string move_type      # "pose", "joint", "named", or "relative"
+
+  # --- Absolute / Relative Position ---
+  float32 x
+  float32 y
+  float32 z
+
+  # --- Orientation (either quaternion or euler, one of them can be 0) ---
+  float32 qx
+  float32 qy
+  float32 qz
+  float32 qw
+
+  float32 rx            # Euler roll (deg)
+  float32 ry            # Euler pitch (deg)
+  float32 rz            # Euler yaw (deg)
+
+  # --- Relative motion offsets (for move_type='relative') ---
+  float32 dx            # delta x (m)
+  float32 dy            # delta y (m)
+  float32 dz            # delta z (m)
+  float32 drx           # delta roll (deg)
+  float32 dry           # delta pitch (deg)
+  float32 drz           # delta yaw (deg)
+
+  # --- Joint motion ---
+  float32[6] joints
+
+  # --- Named target ---
+  string name
+
+  # --- Vel, Acc scaling factor ---
+  float64 max_vel_scale
+  float64 max_acc_scale
+  int8 retry_num
+
+.. note::
+
+   ``retry_num`` increases planning time and attempt count by a factor of
+   ``1 + retry_num``.  
+   For example: 1→2×, 2→3×, 3→4×.  
+   If omitted (default ``0``), the planner uses the standard settings:
+   **5 s planning time** and **10 attempts**.
+
+
+
 .. raw:: html
 
    <br>
@@ -365,12 +515,30 @@ Attach
 
    ros2 service call /attach_detach_command dsr_cumotion_msgs/srv/PickPlace "{motion_type: 0}"
 
+.. image::  ../images/cumotion/attach.png
+   :width: 300px
+   :align: center
+
+.. raw:: html
+
+   <br>
+   <br>
+
 Detach
 ~~~~~~
 
 .. code-block:: bash
 
    ros2 service call /attach_detach_command dsr_cumotion_msgs/srv/PickPlace "{motion_type: 1}"
+
+.. image::  ../images/cumotion/detach.png
+   :width: 300px
+   :align: center
+
+.. raw:: html
+
+   <br>
+   <br>
 
 
 Obstacle Manager
@@ -387,7 +555,6 @@ At initialization, the node reads the specified YAML file and loads the followin
 - ``CYLINDER``
 - ``MESH``
 
-All configured obstacles are published **once** to the ``/planning_scene`` topic after a **2-second delay**.
 
 Each collision object contains the following information:
 - Reference coordinate frame (``frame_id``)
@@ -399,6 +566,7 @@ For ``MESH`` objects, the node uses the **trimesh** library to load a 3D mesh fi
 a ROS-compatible collision object.
 
 In addition, the node subscribes to the ``/collision_remove`` topic, allowing:
+
 - **Selective removal** of a single collision object by ID
 - **Complete removal** of all collision objects by publishing an empty string
 
@@ -408,17 +576,9 @@ for cuMotion and MoveIt 2.
 Usage
 ~~~~~~
 
-The default obstacle configuration file is:
+The default obstacle configuration file is: ``dsr_cumotion/config/obstacle.yaml``
 
-::
-
-   dsr_cumotion/config/obstacle.yaml
-
-If ``frame_id`` is not explicitly specified, it is automatically set to:
-
-::
-
-   base_link
+If ``frame_id`` is not explicitly specified, it is automatically set to: ``base_link``
 
 Example YAML Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -448,49 +608,6 @@ Example YAML Configuration
        orientation: [0.0, 0.0, 0.0, 1.0]
        scale: [1.0, 1.0, 1.0]
 
-YAML Parameter Specification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 15 15 50
-
-   * - Key
-     - Type
-     - Required
-     - Description
-   * - ``id``
-     - ``string``
-     - Yes
-     - Unique name of the collision object (MoveIt scene object ID). This ID is also used for object removal.
-   * - ``type``
-     - ``string``
-     - Yes
-     - Shape type of the obstacle. One of ``BOX``, ``SPHERE``, ``CYLINDER``, or ``MESH`` (case-insensitive).
-   * - ``position``
-     - ``[x, y, z]``
-     - Yes
-     - Center position of the object in meters, defined relative to ``frame_id``.
-   * - ``orientation``
-     - ``[qx, qy, qz, qw]``
-     - No
-     - Object orientation in quaternion format. Default is ``[0, 0, 0, 1]``.
-   * - ``frame_id``
-     - ``string``
-     - No
-     - Reference coordinate frame of the object. Defaults to ``base_link`` if not specified.
-   * - ``dimensions``
-     - ``list``
-     - Shape-dependent
-     - Shape dimensions (e.g., BOX: ``[x, y, z]``, CYLINDER: ``[radius, height]``).
-   * - ``mesh_path`` / ``mesh_resource``
-     - ``string``
-     - MESH only
-     - Path to the mesh file. Absolute or relative path is supported.
-   * - ``scale``
-     - ``[sx, sy, sz]``
-     - No (MESH only)
-     - Mesh scaling factor. Default is ``[1.0, 1.0, 1.0]``.
 
 Collision Object Removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -525,7 +642,7 @@ Example:
      host:=127.0.0.1 \
      obstacle:=true
 
-Major Package Overview
+Package Overview
 ----------------------
 
 This section describes the **core packages** that form the
@@ -613,10 +730,14 @@ Key Responsibilities
   - Named target commands
   - Relative TCP commands
 
+
+
 - Defines the **Pick-and-Place task control service interface**, including:
 
   - Approach → attach → retreat sequence
   - Approach → detach → retreat sequence
+
+
 
 - Provides the **standard API contract** between:
 
@@ -628,5 +749,5 @@ Key Responsibilities
 References
 ----------
 
-- `cuMotion tutorial <https://nvidia-isaac-ros.github.io/v/release-3.2/repositories_and_packages/isaac_ros_cumotion/index.html>`_
-- `cuMotion github <https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion/tree/release-3.2>`_
+- `cuMotion tutorial <https://nvidia-isaac-ros.github.io/v/release-4.0/repositories_and_packages/isaac_ros_cumotion/index.html>`_
+- `cuMotion github <https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion/tree/release-4.0>`_
