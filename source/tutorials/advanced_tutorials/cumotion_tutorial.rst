@@ -17,7 +17,6 @@ the cuMotion-based motion planning pipeline.
    This tutorial is based on the following validated environment:
 
    - Isaac ROS: **Release 3.2**
-   - Isaac Sim: **4.2.0**
    - NVIDIA Driver: **570**
    - CUDA: **12.8** (Docker base: 12.6)
    - ROS 2: **Humble**
@@ -31,80 +30,26 @@ System Prerequisites
 -------------------------------------------------
 
 Before configuring cuMotion, you **must complete the official Isaac ROS base setup**
-provided by **NVIDIA**. This ensures:
+provided by **NVIDIA**. Only after completing the guide below, proceed with the Doosan + cuMotion integration
+steps described below. : `Official Isaac ros setup guide <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_ 
 
-- Proper GPU access inside Docker
-- CUDA and driver compatibility
-- Isaac ROS development container initialization
+.. note::
+   In official setup guide, you must complete both steps:
 
-`Official Isaac ros setup guide <https://nvidia-isaac-ros.github.io/v/release-3.2/getting_started/index.html>`_ 
-
-Only after completing the guide above, proceed with the Doosan + cuMotion integration
-steps described below.
+   1. Compute setup
+   2. Developer Environment Setup
 
 
-.. raw:: html
-
-   <br>
-   <br>
-
-NVIDIA Driver Setup
--------------------------------------------------
-This step installs and verifies the NVIDIA GPU driver required for all CUDA-based computation and GPU acceleration. 
-The NVIDIA driver enables the operating system to communicate directly with the GPU hardware and is a mandatory prerequisite for running Isaac ROS, cuMotion, and all GPU-accelerated Docker containers.
-
-Command
-~~~~~~~~
-
-.. code-block:: bash
-
-   cat /proc/driver/nvidia/version
-   sudo ubuntu-drivers list
-   sudo ubuntu-drivers install nvidia:570
+.. warning::
+   Installing 560 drivers may cause compatibility issues with GPU-accelerated Docker containers due to
+   driver/runtime mismatches.
+   It is recommended to use the latest stable driver version (e.g., 570 series) to ensure compatibility with Isaac ROS and cuMotion.
 
 .. raw:: html
 
    <br>
    <br>
 
-NVIDIA Container Toolkit
--------------------------------------------------
-
-The **NVIDIA Container Toolkit** enables Docker containers to access the host system’s GPU resources directly. 
-It provides the necessary runtime libraries and container hooks that allow CUDA, cuMotion, 
-and Isaac ROS to execute GPU workloads inside containers without performance degradation.
-
-
-Command
-~~~~~~~
-
-.. code-block:: bash
-
-   sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gnupg2
-
-   curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
-   sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-
-   curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
-   sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
-   sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-
-   sudo apt-get update
-
-   export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.18.0-1
-   sudo apt-get install -y \
-     nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-     nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-     libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
-     libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION}
-
-   sudo nvidia-ctk runtime configure --runtime=docker
-   sudo systemctl daemon-reload && sudo systemctl restart docker
-
-.. raw:: html
-
-   <br>
-   <br>
 
 Workspace Setup
 ----------------
@@ -125,11 +70,6 @@ Isaac ROS Workspace
 
    git clone --recursive -b release-3.2 https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git
    git clone --recursive -b release-3.2 https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion.git
-
-.. raw:: html
-
-   <br>
-   <br>
 
 Doosan ROS 2 + cuMotion Workspace
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -159,6 +99,9 @@ for cuMotion and motion planning.
 
 Command
 ~~~~~~~~
+
+- **Doosan cuMotion Docker Startup**
+
 .. code-block:: bash
 
    cd ~/ros2_ws/src/cumotion/dsr_cumotion/docker
@@ -170,31 +113,14 @@ Command
    cd ~/workspaces/isaac_ros-dev/src/isaac_ros_common/scripts
    ./run_dev.sh
 
-GPU Verification
-~~~~~~~~~~~~~~~~~
 
-.. code-block:: bash
-
-   nvidia-smi
-
-.. raw:: html
-
-   <br>
-   <br>
-
-ROS Environment Setup
--------------------------------------------------
-
-Command
-~~~~~~~~
+- **Environment Setup**
 
 .. code-block:: bash
 
    source /opt/ros/humble/setup.bash
-   cd /workspaces/isaac_ros-dev
-   source install/setup.bash
-   cd /ros2_ws
-   source install/setup.bash
+   source /workspaces/isaac_ros-dev/install/setup.bash
+   source /workspaces/ros2_ws/install/setup.bash
 
 .. raw:: html
 
@@ -205,7 +131,7 @@ cuMotion Launch
 -------------------------------------------------
 
 This section launches the full cuMotion-based motion planning and execution pipeline for the Doosan robot in either real hardware mode or virtual simulation mode.
-In ````real`` mode, the system establishes a direct network connection to the physical robot controller using the specified IP address 
+In ``real`` mode, the system establishes a direct network connection to the physical robot controller using the specified IP address 
 and executes trajectories on the real hardware through the ROS 2 control interface.
 In ``virtual mode``, the same motion planning pipeline is executed against a
 simulated robot instance, allowing safe algorithm testing, parameter tuning, and integration validation without physical hardware.
@@ -227,6 +153,21 @@ Command
      ros2 launch dsr_cumotion start_cumotion.launch.py \
        mode:=virtual host:=127.0.0.1 gripper:=none
 
+.. raw:: html
+
+   <br>
+
+.. image::  ../images/cumotion/cumotion_launch1.png
+   :alt: cuMotion Launch
+   :width: 800px
+   :align: center
+
+
+.. raw:: html
+
+   <br>
+   <br>
+
 Gripper Configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -235,6 +176,32 @@ Gripper Configuration
 - ``gripper:=none``   – Robot only  
 - ``gripper:=vgc10``  – OnRobot VGC10  
 - ``gripper:=2f85``   – Robotiq 2F-85  
+
+.. list-table::
+   :widths: 33 33 33
+   :align: center
+
+   * - .. container:: align-center
+
+          .. image:: ../images/cumotion/cumotion_gripper_none.png
+             :width: 200px
+          
+          **No gripper**
+
+     - .. container:: align-center
+
+          .. image:: ../images/cumotion/cumotion_gripper_vgc10.png
+             :width: 200px
+          
+          **OnRobot VGC10**
+
+     - .. container:: align-center
+
+          .. image:: ../images/cumotion/cumotion_gripper_2f85.png
+             :width: 200px
+          
+          **Robotiq 2F-85**
+
 
 .. warning::
 
@@ -279,10 +246,65 @@ Gripper Configuration
      - ``false``
      - Selects the time source. ``false`` uses system wall time (must be used in ``real`` mode), and ``true`` enables simulated time for virtual environments.
 
+
+.. note::
+   When specifying the ``host`` argument, note that different values are required
+   depending on the operation mode.  
+   For **virtual mode**, the host address must always be fixed to ``127.0.0.1``.  
+   For **real mode**, it is recommended to use an address in the ``192.168.137.x`` range,  
+   which must match the IP configured on the robot's TP.
+
+
+cuMotion Planning Demo
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The following examples illustrate how cuMotion performs real-time, GPU-accelerated
+motion planning directly from the MoveIt RViz interface.  
+Simply dragging the TCP marker and selecting **Plan and Execute** triggers cuMotion
+to generate and execute an optimized trajectory on the robot.
+
+.. raw:: html
+
+   <br>
+
+**1. Basic Plan & Execute**
+
+This demo shows a straightforward target pose update in RViz.  
+
+.. image:: ../images/cumotion/cumotion_demo_basic.gif
+   :alt: cuMotion Basic Planning Demo
+   :width: 800px
+   :align: center
+
+.. raw:: html
+
+   <p style="text-align:center;"><i>Figure: Basic motion planning with cuMotion from a dragged TCP target.</i></p>
+   <br>
+
+
+**2. Obstacle-Aware Planning**
+
+This example demonstrates how cuMotion dynamically avoids obstacles in the environment.  
+Even with complex constraints, the GPU-accelerated planner quickly searches for a safe,
+collision-free trajectory.
+
+.. image:: ../images/cumotion/cumotion_demo_obstacle.gif
+   :alt: cuMotion Obstacle Avoidance Demo
+   :width: 800px
+   :align: center
+
+.. raw:: html
+
+   <p style="text-align:center;"><i>Figure: cuMotion computes an optimized trajectory that safely avoids obstacles.</i></p>
+   <br><br>
+
 .. raw:: html
 
    <br>
    <br>
+
+
+
 
 Motion Command Topics
 ----------------------
@@ -300,7 +322,8 @@ It is used when both the target **position and orientation** need to be explicit
      max_vel_scale: 0.5, max_acc_scale: 0.4
    }" --once
 
-**TargetPose.msg**
+TargetPose.msg
+^^^^^^^^^^^^^^
 
 This message defines an **absolute target TCP pose**.  
 The orientation can be represented using **either Euler angles or a quaternion**.
@@ -335,12 +358,13 @@ It is used when only the **target joint configuration** is required, without def
 .. code-block:: bash
 
    ros2 topic pub /target_joint dsr_cumotion_msgs/msg/TargetJoint "{
-     joints: [0.0, -90.0, 90.0, 0.0, 90.0, 0.0],
+     joints: [0.0, 0.0, 90.0, 0.0, 90.0, 0.0],
      max_vel_scale: 0.6,
      max_acc_scale: 0.4
    }" --once
 
-**TargetJoint.msg**
+TargetJoint.msg
+^^^^^^^^^^^^^^^^
 
 This message represents a **joint-space motion command**, where each joint angle is provided as an array.
 
@@ -368,7 +392,8 @@ It is well-suited for **repetitive motions and initial pose setup**.
      max_acc_scale: 0.6
    }" --once
 
-**TargetNamed.msg**
+TargetNamed.msg
+^^^^^^^^^^^^^^^^
 
 This message sends the **name of a predefined target pose** as a string.
 
@@ -398,7 +423,8 @@ It is mainly used for **fine adjustments (micro adjustments)** in either the TCP
      max_acc_scale: 0.5
    }" --once
 
-**TargetRelative.msg**
+TargetRelative.msg
+^^^^^^^^^^^^^^^^^^^
 
 This message specifies **relative translational (dx, dy, dz) and rotational (drx, dry, drz) increments**
 with respect to the current TCP or base frame.
@@ -463,7 +489,6 @@ At initialization, the node reads the specified YAML file and loads the followin
 - ``CYLINDER``
 - ``MESH``
 
-All configured obstacles are published **once** to the ``/planning_scene`` topic after a **2-second delay**.
 
 Each collision object contains the following information:
 - Reference coordinate frame (``frame_id``)
@@ -475,6 +500,7 @@ For ``MESH`` objects, the node uses the **trimesh** library to load a 3D mesh fi
 a ROS-compatible collision object.
 
 In addition, the node subscribes to the ``/collision_remove`` topic, allowing:
+
 - **Selective removal** of a single collision object by ID
 - **Complete removal** of all collision objects by publishing an empty string
 
@@ -484,17 +510,9 @@ for cuMotion and MoveIt 2.
 Usage
 ~~~~~~
 
-The default obstacle configuration file is:
+The default obstacle configuration file is: ``dsr_cumotion/config/obstacle.yaml``
 
-::
-
-   dsr_cumotion/config/obstacle.yaml
-
-If ``frame_id`` is not explicitly specified, it is automatically set to:
-
-::
-
-   base_link
+If ``frame_id`` is not explicitly specified, it is automatically set to: ``base_link``
 
 Example YAML Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -524,49 +542,6 @@ Example YAML Configuration
        orientation: [0.0, 0.0, 0.0, 1.0]
        scale: [1.0, 1.0, 1.0]
 
-YAML Parameter Specification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. list-table::
-   :header-rows: 1
-   :widths: 20 15 15 50
-
-   * - Key
-     - Type
-     - Required
-     - Description
-   * - ``id``
-     - ``string``
-     - Yes
-     - Unique name of the collision object (MoveIt scene object ID). This ID is also used for object removal.
-   * - ``type``
-     - ``string``
-     - Yes
-     - Shape type of the obstacle. One of ``BOX``, ``SPHERE``, ``CYLINDER``, or ``MESH`` (case-insensitive).
-   * - ``position``
-     - ``[x, y, z]``
-     - Yes
-     - Center position of the object in meters, defined relative to ``frame_id``.
-   * - ``orientation``
-     - ``[qx, qy, qz, qw]``
-     - No
-     - Object orientation in quaternion format. Default is ``[0, 0, 0, 1]``.
-   * - ``frame_id``
-     - ``string``
-     - No
-     - Reference coordinate frame of the object. Defaults to ``base_link`` if not specified.
-   * - ``dimensions``
-     - ``list``
-     - Shape-dependent
-     - Shape dimensions (e.g., BOX: ``[x, y, z]``, CYLINDER: ``[radius, height]``).
-   * - ``mesh_path`` / ``mesh_resource``
-     - ``string``
-     - MESH only
-     - Path to the mesh file. Absolute or relative path is supported.
-   * - ``scale``
-     - ``[sx, sy, sz]``
-     - No (MESH only)
-     - Mesh scaling factor. Default is ``[1.0, 1.0, 1.0]``.
 
 Collision Object Removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -601,7 +576,7 @@ Example:
      host:=127.0.0.1 \
      obstacle:=true
 
-Major Package Overview
+Package Overview
 ----------------------
 
 This section describes the **core packages** that form the
@@ -641,6 +616,9 @@ Key Responsibilities
 
 This package directly controls the **core motion planning and execution behavior of the robot**.
 
+.. raw:: html
+
+   <br>
 
 ``dsr_cumotion_goal_interface``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -669,6 +647,9 @@ Key Responsibilities
 
 This package serves as the **intermediate control layer between user commands and physical robot execution**.
 
+.. raw:: html
+
+   <br>
 
 ``dsr_cumotion_msgs``
 ~~~~~~~~~~~~~~~~~~~~~
@@ -689,10 +670,12 @@ Key Responsibilities
   - Named target commands
   - Relative TCP commands
 
+
 - Defines the **Pick-and-Place task control service interface**, including:
 
   - Approach → attach → retreat sequence
   - Approach → detach → retreat sequence
+
 
 - Provides the **standard API contract** between:
 

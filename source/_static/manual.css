@@ -60,3 +60,7 @@
     text-decoration: underline;
     font-weight: 600;
 }
+
+.align-center {
+    text-align: center;
+}
