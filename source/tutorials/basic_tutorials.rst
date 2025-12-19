@@ -12,3 +12,4 @@ This section contains basic tutorials to get you started with the Doosan Robot R
    basic_tutorials/rviz_tutorial
    basic_tutorials/gazebo_tutorial
    basic_tutorials/moveit_tutorial
+   basic_tutorials/cumotion_tutorial(Jetson_thor)

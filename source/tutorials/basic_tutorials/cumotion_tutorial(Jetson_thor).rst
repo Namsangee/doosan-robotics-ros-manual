@@ -35,12 +35,16 @@ provided by **NVIDIA**. This ensures:
 
 The following steps must be completed in order before proceeding.
 
+
+
 Jetson Thor Flashing and JetPack Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Follow the official NVIDIA documentation to flash Jetson Thor and install JetPack 7.0:
 
 `Official Jetson thor setup guide <https://docs.nvidia.com/jetson/agx-thor-devkit/user-guide/latest/index.html>`_
+
+
 
 Isaac ROS Setup for Jetson Thor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +77,8 @@ This section describes the process of creating separate and independent workspac
 and the Doosan ROS 2 robot control stack. By isolating these two environments, 
 the system maintains a clean separation between GPU-accelerated core motion planning (Isaac ROS + cuMotion) and vendor-specific robot hardware control (Doosan ROS 2).
 
+
+
 Isaac ROS Workspace
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -97,6 +103,8 @@ All repositories must be checked out to the release-4.0 branch to ensure compati
    <br>
    <br>
 
+
+
 Doosan ROS 2 + cuMotion Workspace
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -113,14 +121,35 @@ Doosan ROS 2 + cuMotion Workspace
    <br>
    <br>
 
+
+
 Container Execution
 -------------------------------------------------
 
 This section integrates the Doosan cuMotion Docker environment with the
 Isaac ROS workspace by copying the required Docker build and runtime scripts.
 
+.. note::
+   For ISAAC ROS 4.0, the ISAAC ROS CLI tool is used to manage the Docker-based development environment.
+   Therefore, additional ISAAC ROS CLI configuration is required to integrate cuMotion.
+   To define custom Docker image layers, the required files and scripts must be placed
+   inside the previously configured ${ISAAC_ROS_WS} directory so that an integrated
+   image can be built using the --build-local option.
+
+   - /usr/lib/isaac-ros-cli: contains scripts such as run_dev.py used for Docker execution
+
+   - /etc/isaac-ros-cli: contains Dockerfiles and build configuration files
+
+.. raw:: html
+
+   <br>
+
 Command
 ~~~~~~~~
+The following commands are written based on the workspace directory structure
+created in the previous steps.  
+They create user-level files for custom Docker configuration.\
+
 Copying the ``docker/`` and ``scripts/`` Directories
 
 .. code-block:: bash
@@ -138,6 +167,62 @@ After copying, the workspace directory structure should be organized as follows:
    ├── docker/
    └── scripts/
 
+.. raw:: html
+
+   <br>
+   <br>
+
+File and Script Descriptions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following files are copied using the commands above and do not require modification.
+
+``/workspaces/scripts/.build_image_layers.yaml``
+
+This file defines the base image_key. It is used as shown below, and no additional custom layers are added.
+
+.. code-block:: bash
+
+      image_key_order:
+         - noble.ros2_jazzy
+      cache_to_registry_names: []
+      cache_from_registry_names:
+         - nvcr.io/nvidia/isaac/ros
+      remote_builder: []
+
+
+``/workspaces/scripts/.isaac_ros_common-config``
+
+This file specifies the locations of Dockerfiles. It is used as shown below. If the Dockerfile location changes, the corresponding path must be added here.
+
+.. code-block:: bash
+   
+      CONFIG_DOCKER_SEARCH_DIRS=(
+         ${ISAAC_ROS_WS}/../docker
+         /usr/lib/isaac-ros-cli/docker
+      )
+      BASE_DOCKER_REGISTRY_NAMES=(
+         nvcr.io/nvidia/isaac/ros
+      )
+
+``/workspaces/scripts/.isaac_ros_dev-dockerargs``
+
+This file adds configuration options used when running the Docker container.
+
+.. code-block:: bash
+
+      -v `realpath ~/ros2_ws`:/workspaces/ros2_ws
+      -v /var/run/docker.sock:/var/run/docker.sock
+
+``/workspaces/docker``
+
+This directory contains the Dockerfile and execution scripts required for Doosan cuMotion integration.
+Dockerfile.doosan includes the necessary configuration to use the Doosan Robot2 packages.
+
+.. raw:: html
+
+   <br>
+   <br>
 
 Isaac ROS CLI Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,19 +237,26 @@ during the build process.
     mkdir -p ~/workspaces/isaac_ros-dev/.isaac-ros-cli
 
 
-Create the following configuration file: ``config.yaml``
+``/workspaces/isaac_ros-dev/.isaac-ros-cli/config.yaml``
+
+This file is a configuration file that defines and adds additional layers.
 
 .. code-block:: yaml
 
-    cat << 'EOF' > config.yaml
-    environment:
-      mode: docker
+      cat << 'EOF' > config.yaml
+      environment:
+         mode: docker
 
-    docker:
-      image:
-        additional_image_keys:
-          - doosan
-    EOF
+      docker:
+         image:
+         additional_image_keys:
+            - doosan
+      EOF
+
+.. raw:: html
+
+   <br>
+   <br>
 
 Docker Image Layer Composition
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,6 +278,10 @@ This layered design ensures a clean separation between:
 - Isaac ROS middleware
 - Doosan robot-specific control software
 
+.. raw:: html
+
+   <br>
+   <br>
 
 Building the Integrated Docker Image
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,6 +305,10 @@ During this process, the following actions are performed automatically:
 - Execution of Doosan-specific build hooks
 - Full ``colcon build`` of the integrated workspace
 
+.. raw:: html
+
+   <br>
+   <br>
 
 ROS Environment Setup
 -------------------------------------------------
@@ -445,8 +545,8 @@ It is mainly used for **fine adjustments (micro adjustments)** in either the TCP
       max_vel_scale: 0.5, max_acc_scale: 0.5}" --once
 
 
-TargetPose.msg
-^^^^^^^^^^^^^^^^^^^
+**TargetPose.msg**
+
 .. code-block:: bash
 
   string move_type      # "pose", "joint", "named", or "relative"
@@ -608,6 +708,9 @@ Example YAML Configuration
        orientation: [0.0, 0.0, 0.0, 1.0]
        scale: [1.0, 1.0, 1.0]
 
+.. raw:: html
+
+   <br>
 
 Collision Object Removal
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -642,6 +745,11 @@ Example:
      host:=127.0.0.1 \
      obstacle:=true
 
+.. raw:: html
+
+   <br>
+   <br>
+
 Package Overview
 ----------------------
 
@@ -665,23 +773,9 @@ It connects the following components into a single execution pipeline:
 - Planning scene and static obstacle management
 
 
-Key Responsibilities
-^^^^^^^^^^^^^^^^^^^^
+.. raw:: html
 
-- Provides the **main system launch entry point** (``start_cumotion.launch.py``)
-- Configures the **cuMotion and MoveIt 2 planning pipelines**
-- Manages **robot model integration**:
-
-  - URDF
-  - SRDF
-  - XRDF
-
-- Provides a **Pick-and-Place task execution server**
-- Manages **static obstacles using the Planning Scene**
-- Manages **workspace boundaries (workbound)**
-
-This package directly controls the **core motion planning and execution behavior of the robot**.
-
+   <br>
 
 ``dsr_cumotion_goal_interface``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -692,11 +786,8 @@ The ``dsr_cumotion_goal_interface`` package receives **high-level user commands*
 and acts as the **command gateway** that forwards them to the
 **MoveIt 2 + cuMotion execution pipeline**.
 
-
-Key Responsibilities
-^^^^^^^^^^^^^^^^^^^^
-
 - Subscribes to the ``/target_pose`` topic
+- Sends motion goals to the **MoveIt 2 Action Server**
 - Selects the appropriate execution strategy based on the command type:
 
   - Absolute pose motion
@@ -704,12 +795,9 @@ Key Responsibilities
   - Named pose motion
   - Relative TCP motion
 
-- Sends motion goals to the **MoveIt 2 Action Server**
-- Monitors execution status and feedback
-- Executes commands sequentially using a **multi-command queue**
+.. raw:: html
 
-This package serves as the **intermediate control layer between user commands and physical robot execution**.
-
+   <br>
 
 ``dsr_cumotion_msgs``
 ~~~~~~~~~~~~~~~~~~~~~
@@ -720,9 +808,6 @@ The ``dsr_cumotion_msgs`` package defines all **custom ROS 2 messages and servic
 used throughout the system for **motion-level and task-level control**.
 
 
-Key Responsibilities
-^^^^^^^^^^^^^^^^^^^^
-
 - Defines the **unified motion command message** that supports:
 
   - Absolute pose commands
@@ -730,13 +815,18 @@ Key Responsibilities
   - Named target commands
   - Relative TCP commands
 
+.. raw:: html
 
+   <br>
 
 - Defines the **Pick-and-Place task control service interface**, including:
 
   - Approach → attach → retreat sequence
   - Approach → detach → retreat sequence
 
+.. raw:: html
+
+   <br>
 
 
 - Provides the **standard API contract** between:
@@ -744,7 +834,6 @@ Key Responsibilities
   - User applications
   - Command interface nodes
   - Planning and execution subsystems
-
 
 References
 ----------
